@@ -725,6 +725,47 @@ body.dual-mode .partner-upload-row {
   background: #c38b83;
 }
 
+.pastel-preview {
+  background: #f7d7df;
+  color: #76536b;
+  border: 5px solid #bde3e1;
+}
+
+.pastel-preview .mini-photo {
+  background: #f0b8c8;
+}
+
+.floral-preview {
+  background: #f4e5ce;
+  color: #78624a;
+  border: 5px solid #fff8ed;
+  outline: 1px solid #c5a77f;
+}
+
+.floral-preview .mini-photo {
+  background: #d9b88b;
+}
+
+.retro-preview {
+  background: #d8c4a9;
+  color: #55402e;
+  border: 5px double #55402e;
+}
+
+.retro-preview .mini-photo {
+  background: #aa8b6d;
+}
+
+.collage-preview {
+  background: #f5eee2;
+  color: #573f32;
+  border: 5px solid #e9c6ba;
+}
+
+.collage-preview .mini-photo {
+  background: #c79f91;
+}
+
 .setting-row {
   display: flex;
   justify-content: space-between;

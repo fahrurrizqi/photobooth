@@ -45,7 +45,16 @@ let dataConnection = null;
 let activeRoomCode = '';
 let captureInProgress = false;
 
-const templatePhotoCounts = { classic: 4, polaroid: 4, film: 4, love: 4 };
+const templatePhotoCounts = {
+    classic: 4,
+    polaroid: 4,
+    film: 4,
+    love: 4,
+    pastel: 4,
+    floral: 4,
+    retro: 4,
+    collage: 4
+};
 
 function getRequiredPhotoCount() {
     return templatePhotoCounts[selectedTemplate];
@@ -239,6 +248,41 @@ function addText(context, text, x, y, size, color, align = 'center') {
     context.fillText(text, x, y);
 }
 
+function drawTemplateDecoration(context, template, width, height, foreground) {
+    context.save();
+    context.fillStyle = foreground;
+    context.strokeStyle = foreground;
+    context.globalAlpha = 0.72;
+    if (template === 'pastel') {
+        context.font = '700 30px DM Sans, sans-serif';
+        context.fillText('✦', 25, 42);
+        context.fillText('✦', width - 50, height - 35);
+        context.font = '700 15px DM Sans, sans-serif';
+        context.fillText('GOOD VIBES', 28, height - 58);
+    }
+    if (template === 'floral') {
+        context.font = '30px serif';
+        context.fillText('✿', 23, 42);
+        context.fillText('❀', width - 52, height - 35);
+        context.font = '700 15px DM Sans, sans-serif';
+        context.fillText('HAPPY DAY', width / 2, height - 58);
+    }
+    if (template === 'retro') {
+        context.lineWidth = 3;
+        context.strokeRect(22, 22, width - 44, height - 44);
+        context.font = '700 15px DM Sans, sans-serif';
+        context.fillText('MEMORIES', width / 2, height - 58);
+    }
+    if (template === 'collage') {
+        context.font = '700 30px DM Sans, sans-serif';
+        context.fillText('♥', 25, 42);
+        context.fillText('★', width - 54, 42);
+        context.font = '700 15px DM Sans, sans-serif';
+        context.fillText('OUR DAY', width / 2, height - 58);
+    }
+    context.restore();
+}
+
 function composePhotos(photoDataList) {
     return Promise.all(photoDataList.map(photoData => new Promise(resolve => {
         const image = new Image();
@@ -303,18 +347,24 @@ async function renderDualResultIfReady() {
 }
 
 function renderTemplate(images, resolve) {
-    const width = selectedTemplate === 'film' ? 720 : 900;
+    const width = ['film', 'pastel', 'floral', 'retro'].includes(selectedTemplate) ? 720 : 900;
     const photoWidth = width - 96;
     const photoHeight = Math.round(photoWidth * 0.75);
     const hasPair = images.length > 1;
-    const slotGap = selectedTemplate === 'film' ? 18 : 28;
-    const bottomSpace = selectedTemplate === 'film' ? 150 : 190;
+    const slotGap = ['film', 'retro'].includes(selectedTemplate) ? 18 : 28;
+    const bottomSpace = ['film', 'pastel', 'floral', 'retro'].includes(selectedTemplate) ? 150 : 190;
     const height = Math.max(1120, 48 + (images.length * 330) + ((images.length - 1) * slotGap) + bottomSpace);
     canvas.width = width;
     canvas.height = height;
     const context = canvas.getContext('2d');
-    const background = { classic: '#252525', polaroid: '#f8f5ed', film: '#151515', love: '#edc1b9' }[selectedTemplate];
-    const foreground = { classic: '#fffdf8', polaroid: '#252525', film: '#fffdf8', love: '#6e3735' }[selectedTemplate];
+    const background = {
+        classic: '#252525', polaroid: '#f8f5ed', film: '#151515', love: '#edc1b9',
+        pastel: '#f7d7df', floral: '#f4e5ce', retro: '#d8c4a9', collage: '#f5eee2'
+    }[selectedTemplate];
+    const foreground = {
+        classic: '#fffdf8', polaroid: '#252525', film: '#fffdf8', love: '#6e3735',
+        pastel: '#76536b', floral: '#78624a', retro: '#55402e', collage: '#573f32'
+    }[selectedTemplate];
     context.fillStyle = background;
     context.fillRect(0, 0, width, height);
     const imageHeight = Math.round((height - bottomSpace - 96 - (slotGap * (images.length - 1))) / images.length);
@@ -331,15 +381,20 @@ function renderTemplate(images, resolve) {
         context.drawImage(item, 48 + (imageWidth - drawWidth) / 2, y + (imageHeight - drawHeight) / 2, drawWidth, drawHeight);
         context.restore();
         if (index < images.length - 1) {
-            context.fillStyle = selectedTemplate === 'polaroid' ? '#d8eaf0' : '#0b0b0b';
+                const gapColor = {
+                    polaroid: '#d8eaf0', pastel: '#fff1f3', floral: '#fff8ed', retro: '#efe0c8', collage: '#fffaf2'
+                }[selectedTemplate] || '#0b0b0b';
+                context.fillStyle = gapColor;
             context.fillRect(48, y + imageHeight, imageWidth, slotGap);
-            context.fillStyle = selectedTemplate === 'polaroid' ? '#9cbac3' : '#5f5f5f';
+                const lineColor = selectedTemplate === 'polaroid' ? '#9cbac3' : foreground;
+                context.fillStyle = lineColor;
             context.fillRect(48, y + imageHeight + Math.round(slotGap / 2), imageWidth, 2);
         }
     });
-    const label = selectedTemplate === 'love' ? 'DENGAN CINTA' : selectedTemplate === 'film' ? 'PHOTOBOOTH / 2026' : hasPair ? 'KITA BERDUA' : 'SENYUM HARI INI';
+        const label = selectedTemplate === 'love' ? 'DENGAN CINTA' : selectedTemplate === 'film' ? 'PHOTOBOOTH / 2026' : selectedTemplate === 'pastel' ? 'GOOD VIBES' : selectedTemplate === 'floral' ? 'HAPPY DAY' : selectedTemplate === 'retro' ? 'MEMORIES' : selectedTemplate === 'collage' ? 'OUR DAY' : hasPair ? 'KITA BERDUA' : 'SENYUM HARI INI';
     addText(context, label, width / 2, height - 58, 24, foreground);
     if (selectedTemplate === 'polaroid') addText(context, 'PHOTOBOOTH', width / 2, height - 20, 12, '#8b877e');
+        drawTemplateDecoration(context, selectedTemplate, width, height, foreground);
     resolve(canvas.toDataURL('image/png'));
 }
 
