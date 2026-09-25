@@ -53,7 +53,8 @@ const templatePhotoCounts = {
     pastel: 4,
     floral: 4,
     retro: 4,
-    collage: 4
+    collage: 4,
+    analog: 4
 };
 
 function getRequiredPhotoCount() {
@@ -283,6 +284,22 @@ function drawTemplateDecoration(context, template, width, height, foreground) {
         context.font = '700 15px DM Sans, sans-serif';
         context.fillText('OUR DAY', width / 2, height - 58);
     }
+    if (template === 'analog') {
+        context.globalAlpha = 0.18;
+        context.fillStyle = '#d7d3b5';
+        for (let lineY = 0; lineY < height; lineY += 12) {
+            context.fillRect(0, lineY, width, 2);
+        }
+        context.globalAlpha = 0.7;
+        context.strokeStyle = '#b49a62';
+        context.lineWidth = 8;
+        context.strokeRect(22, 22, width - 44, height - 44);
+        context.font = '700 18px DM Sans, sans-serif';
+        context.textAlign = 'left';
+        context.fillText('TV ANALOG', 36, 34);
+        context.textAlign = 'right';
+        context.fillText('CH 04', width - 36, 34);
+    }
     context.restore();
 }
 
@@ -350,11 +367,11 @@ async function renderDualResultIfReady() {
 }
 
 function renderTemplate(images, resolve) {
-    const width = ['film', 'pastel', 'floral', 'retro'].includes(selectedTemplate) ? 720 : 900;
+    const width = ['film', 'pastel', 'floral', 'retro', 'analog'].includes(selectedTemplate) ? 720 : 900;
     const hasPair = images.length > 1;
     const slotGap = ['film', 'retro'].includes(selectedTemplate) ? 18 : 28;
     const gridTop = 48;
-    const footerSpace = ['film', 'pastel', 'floral', 'retro'].includes(selectedTemplate) ? 150 : 190;
+    const footerSpace = ['film', 'pastel', 'floral', 'retro', 'analog'].includes(selectedTemplate) ? 150 : 190;
     const photoSize = Math.round(width * 0.84);
     const photoX = Math.round((width - photoSize) / 2);
     const height = gridTop + (images.length * photoSize) + ((images.length - 1) * slotGap) + footerSpace;
@@ -363,11 +380,11 @@ function renderTemplate(images, resolve) {
     const context = canvas.getContext('2d');
     const background = {
         classic: '#252525', polaroid: '#f8f5ed', film: '#151515', love: '#edc1b9',
-        pastel: '#f7d7df', floral: '#f4e5ce', retro: '#d8c4a9', collage: '#f5eee2'
+        pastel: '#f7d7df', floral: '#f4e5ce', retro: '#d8c4a9', collage: '#f5eee2', analog: '#20292a'
     }[selectedTemplate];
     const foreground = {
         classic: '#fffdf8', polaroid: '#252525', film: '#fffdf8', love: '#6e3735',
-        pastel: '#76536b', floral: '#78624a', retro: '#55402e', collage: '#573f32'
+        pastel: '#76536b', floral: '#78624a', retro: '#55402e', collage: '#573f32', analog: '#ead6a1'
     }[selectedTemplate];
     context.fillStyle = background;
     context.fillRect(0, 0, width, height);
@@ -391,7 +408,7 @@ function renderTemplate(images, resolve) {
             context.fillRect(x, y + photoSize, photoSize, slotGap);
         }
     });
-        const label = selectedTemplate === 'love' ? 'DENGAN CINTA' : selectedTemplate === 'film' ? 'PHOTOBOOTH / 2026' : selectedTemplate === 'pastel' ? 'GOOD VIBES' : selectedTemplate === 'floral' ? 'HAPPY DAY' : selectedTemplate === 'retro' ? 'MEMORIES' : selectedTemplate === 'collage' ? 'OUR DAY' : hasPair ? 'KITA BERDUA' : 'SENYUM HARI INI';
+        const label = selectedTemplate === 'love' ? 'DENGAN CINTA' : selectedTemplate === 'film' ? 'PHOTOBOOTH / 2026' : selectedTemplate === 'pastel' ? 'GOOD VIBES' : selectedTemplate === 'floral' ? 'HAPPY DAY' : selectedTemplate === 'retro' ? 'MEMORIES' : selectedTemplate === 'collage' ? 'OUR DAY' : selectedTemplate === 'analog' ? 'MEMORIES ON AIR' : hasPair ? 'KITA BERDUA' : 'SENYUM HARI INI';
     addText(context, label, width / 2, height - 58, 24, foreground);
     if (selectedTemplate === 'polaroid') addText(context, 'PHOTOBOOTH', width / 2, height - 20, 12, '#8b877e');
         drawTemplateDecoration(context, selectedTemplate, width, height, foreground);

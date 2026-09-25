@@ -766,6 +766,19 @@ body.dual-mode .partner-upload-row {
   background: #c79f91;
 }
 
+.analog-preview {
+  background: #20292a;
+  color: #ead6a1;
+  border: 5px solid #8d7650;
+  box-shadow: inset 0 0 0 2px #101617;
+}
+
+.analog-preview .mini-photo {
+  background: #526b67;
+  border: 2px solid #b7a16b;
+  filter: contrast(1.2) saturate(0.65);
+}
+
 .setting-row {
   display: flex;
   justify-content: space-between;
