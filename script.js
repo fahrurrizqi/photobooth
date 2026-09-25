@@ -353,10 +353,10 @@ function renderTemplate(images, resolve) {
     const width = ['film', 'pastel', 'floral', 'retro'].includes(selectedTemplate) ? 720 : 900;
     const hasPair = images.length > 1;
     const slotGap = ['film', 'retro'].includes(selectedTemplate) ? 18 : 28;
-    const padding = 48;
     const gridTop = 48;
     const footerSpace = ['film', 'pastel', 'floral', 'retro'].includes(selectedTemplate) ? 150 : 190;
-    const photoSize = width - (padding * 2);
+    const photoSize = Math.round(width * 0.84);
+    const photoX = Math.round((width - photoSize) / 2);
     const height = gridTop + (images.length * photoSize) + ((images.length - 1) * slotGap) + footerSpace;
     canvas.width = width;
     canvas.height = height;
@@ -372,7 +372,7 @@ function renderTemplate(images, resolve) {
     context.fillStyle = background;
     context.fillRect(0, 0, width, height);
     images.forEach((item, index) => {
-        const x = padding;
+        const x = photoX;
         const y = gridTop + index * (photoSize + slotGap);
         context.save();
         context.beginPath();
