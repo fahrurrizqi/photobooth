@@ -354,14 +354,10 @@ function renderTemplate(images, resolve) {
     const hasPair = images.length > 1;
     const slotGap = ['film', 'retro'].includes(selectedTemplate) ? 18 : 28;
     const padding = 48;
-    const gridTop = 36;
-    const footerSpace = 90;
-    const columnCount = 2;
-    const height = width;
-    const cellSize = Math.min(
-        (width - (padding * 2) - slotGap) / columnCount,
-        (height - gridTop - footerSpace - slotGap) / columnCount
-    );
+    const gridTop = 48;
+    const footerSpace = ['film', 'pastel', 'floral', 'retro'].includes(selectedTemplate) ? 150 : 190;
+    const photoSize = width - (padding * 2);
+    const height = gridTop + (images.length * photoSize) + ((images.length - 1) * slotGap) + footerSpace;
     canvas.width = width;
     canvas.height = height;
     const context = canvas.getContext('2d');
@@ -376,29 +372,23 @@ function renderTemplate(images, resolve) {
     context.fillStyle = background;
     context.fillRect(0, 0, width, height);
     images.forEach((item, index) => {
-        const column = index % columnCount;
-        const row = Math.floor(index / columnCount);
-        const x = padding + column * (cellSize + slotGap);
-        const y = gridTop + row * (cellSize + slotGap);
+        const x = padding;
+        const y = gridTop + index * (photoSize + slotGap);
         context.save();
         context.beginPath();
-        context.rect(x, y, cellSize, cellSize);
+        context.rect(x, y, photoSize, photoSize);
         context.clip();
-        const ratio = Math.max(cellSize / item.width, cellSize / item.height);
+        const ratio = Math.max(photoSize / item.width, photoSize / item.height);
         const drawWidth = item.width * ratio;
         const drawHeight = item.height * ratio;
-        context.drawImage(item, x + (cellSize - drawWidth) / 2, y + (cellSize - drawHeight) / 2, drawWidth, drawHeight);
+        context.drawImage(item, x + (photoSize - drawWidth) / 2, y + (photoSize - drawHeight) / 2, drawWidth, drawHeight);
         context.restore();
         if (index < images.length - 1) {
             const gapColor = {
                 polaroid: '#d8eaf0', pastel: '#fff1f3', floral: '#fff8ed', retro: '#efe0c8', collage: '#fffaf2'
             }[selectedTemplate] || '#0b0b0b';
             context.fillStyle = gapColor;
-            if (column < columnCount - 1) {
-                context.fillRect(x + cellSize, y, slotGap, cellSize);
-            } else {
-                context.fillRect(x, y + cellSize, cellSize, slotGap);
-            }
+            context.fillRect(x, y + photoSize, photoSize, slotGap);
         }
     });
         const label = selectedTemplate === 'love' ? 'DENGAN CINTA' : selectedTemplate === 'film' ? 'PHOTOBOOTH / 2026' : selectedTemplate === 'pastel' ? 'GOOD VIBES' : selectedTemplate === 'floral' ? 'HAPPY DAY' : selectedTemplate === 'retro' ? 'MEMORIES' : selectedTemplate === 'collage' ? 'OUR DAY' : hasPair ? 'KITA BERDUA' : 'SENYUM HARI INI';
