@@ -15,7 +15,12 @@ const resultImage = document.getElementById('resultImage');
 const downloadBtn = document.getElementById('downloadBtn');
 const newPhotoBtn = document.getElementById('newPhotoBtn');
 const timerSelect = document.getElementById('timerSelect');
+const photoCountSelect = document.getElementById('photoCountSelect');
 const mirrorToggle = document.getElementById('mirrorToggle');
+const templateTitleInput = document.getElementById('templateTitleInput');
+const templateDateInput = document.getElementById('templateDateInput');
+const templateBackgroundInput = document.getElementById('templateBackgroundInput');
+const templateForegroundInput = document.getElementById('templateForegroundInput');
 const modeButtons = document.querySelectorAll('[data-mode]');
 const templateButtons = document.querySelectorAll('[data-template]');
 const partnerPhotoInput = document.getElementById('partnerPhotoInput');
@@ -36,6 +41,7 @@ const muteAudioBtn = document.getElementById('muteAudioBtn');
 let stream = null;
 let facingMode = 'user';
 let selectedTemplate = 'classic';
+let selectedPhotoCount = Number(photoCountSelect.value);
 let selectedMode = 'single';
 let capturedPhotos = [];
 let partnerPhoto = null;
@@ -45,20 +51,12 @@ let dataConnection = null;
 let activeRoomCode = '';
 let captureInProgress = false;
 
-const templatePhotoCounts = {
-    classic: 4,
-    polaroid: 4,
-    film: 4,
-    love: 4,
-    pastel: 4,
-    floral: 4,
-    retro: 4,
-    collage: 4,
-    analog: 4
-};
-
 function getRequiredPhotoCount() {
-    return templatePhotoCounts[selectedTemplate];
+    return selectedPhotoCount;
+}
+
+function getTemplateLabel() {
+    return selectedTemplate === 'love' ? 'DENGAN CINTA' : selectedTemplate === 'film' ? 'PHOTOBOOTH / 2026' : selectedTemplate === 'pastel' ? 'GOOD VIBES' : selectedTemplate === 'floral' ? 'HAPPY DAY' : selectedTemplate === 'retro' ? 'MEMORIES' : selectedTemplate === 'collage' ? 'OUR DAY' : selectedTemplate === 'analog' ? 'MEMORIES ON AIR' : 'SENYUM HARI INI';
 }
 
 function getSessionPhotos() {
@@ -370,7 +368,9 @@ function renderTemplate(images, resolve) {
     const width = ['film', 'pastel', 'floral', 'retro', 'analog'].includes(selectedTemplate) ? 720 : 900;
     const hasPair = images.length > 1;
     const slotGap = ['film', 'retro'].includes(selectedTemplate) ? 18 : 28;
-    const gridTop = 48;
+    const title = templateTitleInput.value.trim();
+    const date = templateDateInput.value.trim();
+    const gridTop = title || date ? 210 : 48;
     const footerSpace = ['film', 'pastel', 'floral', 'retro', 'analog'].includes(selectedTemplate) ? 150 : 190;
     const photoSize = Math.round(width * 0.84);
     const photoX = Math.round((width - photoSize) / 2);
@@ -378,16 +378,18 @@ function renderTemplate(images, resolve) {
     canvas.width = width;
     canvas.height = height;
     const context = canvas.getContext('2d');
-    const background = {
-        classic: '#252525', polaroid: '#f8f5ed', film: '#151515', love: '#edc1b9',
-        pastel: '#f7d7df', floral: '#f4e5ce', retro: '#d8c4a9', collage: '#f5eee2', analog: '#20292a'
-    }[selectedTemplate];
-    const foreground = {
-        classic: '#fffdf8', polaroid: '#252525', film: '#fffdf8', love: '#6e3735',
-        pastel: '#76536b', floral: '#78624a', retro: '#55402e', collage: '#573f32', analog: '#ead6a1'
-    }[selectedTemplate];
+    const background = templateBackgroundInput.value;
+    const foreground = templateForegroundInput.value;
     context.fillStyle = background;
     context.fillRect(0, 0, width, height);
+    if (title || date) {
+        context.fillStyle = foreground;
+        context.textAlign = 'center';
+        context.font = 'italic 76px "Playfair Display", serif';
+        if (title) context.fillText(title, width / 2, 92);
+        context.font = '500 20px DM Sans, sans-serif';
+        if (date) context.fillText(date, width / 2, 158);
+    }
     images.forEach((item, index) => {
         const x = photoX;
         const y = gridTop + index * (photoSize + slotGap);
@@ -408,11 +410,19 @@ function renderTemplate(images, resolve) {
             context.fillRect(x, y + photoSize, photoSize, slotGap);
         }
     });
-        const label = selectedTemplate === 'love' ? 'DENGAN CINTA' : selectedTemplate === 'film' ? 'PHOTOBOOTH / 2026' : selectedTemplate === 'pastel' ? 'GOOD VIBES' : selectedTemplate === 'floral' ? 'HAPPY DAY' : selectedTemplate === 'retro' ? 'MEMORIES' : selectedTemplate === 'collage' ? 'OUR DAY' : selectedTemplate === 'analog' ? 'MEMORIES ON AIR' : hasPair ? 'KITA BERDUA' : 'SENYUM HARI INI';
-    addText(context, label, width / 2, height - 58, 24, foreground);
+    const label = hasPair ? 'KITA BERDUA' : getTemplateLabel();
+    if (!title && !date) addText(context, label, width / 2, height - 58, 24, foreground);
     if (selectedTemplate === 'polaroid') addText(context, 'PHOTOBOOTH', width / 2, height - 20, 12, '#8b877e');
         drawTemplateDecoration(context, selectedTemplate, width, height, foreground);
     resolve(canvas.toDataURL('image/png'));
+}
+
+async function renderResultIfReady() {
+    if (selectedMode === 'dual') {
+        await renderDualResultIfReady();
+    } else if (getSessionPhotos().length >= getRequiredPhotoCount()) {
+        resultImage.src = await composePhotos(getSessionPhotos());
+    }
 }
 
 async function capturePhoto(requestRemote = true, requestedIndex = capturedPhotos.length, countdownSeconds = Number(timerSelect.value)) {
@@ -465,6 +475,11 @@ startCameraBtn.addEventListener('click', startCamera);
 captureBtn.addEventListener('click', capturePhoto);
 retakeBtn.addEventListener('click', resetPhoto);
 newPhotoBtn.addEventListener('click', resetPhoto);
+photoCountSelect.addEventListener('change', () => {
+    selectedPhotoCount = Number(photoCountSelect.value);
+    resetPhoto();
+    setCameraMessage(`Jumlah foto diubah menjadi ${selectedPhotoCount}. Siap mengambil ulang.`, 'SIAP');
+});
 switchCameraBtn.addEventListener('click', () => {
     facingMode = facingMode === 'user' ? 'environment' : 'user';
     startCamera();
@@ -485,12 +500,11 @@ templateButtons.forEach(button => button.addEventListener('click', async () => {
     button.classList.add('active');
     selectedTemplate = button.dataset.template;
     updateCaptureProgress();
-    if (selectedMode === 'dual') {
-        await renderDualResultIfReady();
-    } else if (getSessionPhotos().length >= getRequiredPhotoCount()) {
-        resultImage.src = await composePhotos(getSessionPhotos());
-    }
+    await renderResultIfReady();
 }));
+
+[templateTitleInput, templateDateInput, templateBackgroundInput, templateForegroundInput]
+    .forEach(input => input.addEventListener('input', renderResultIfReady));
 
 modeButtons.forEach(button => button.addEventListener('click', () => {
     modeButtons.forEach(item => item.classList.remove('active'));

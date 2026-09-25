@@ -425,6 +425,32 @@
 
         <div>
 
+          <strong>Jumlah Foto</strong>
+
+          <p class="small-text">
+            Banyak foto dalam satu hasil
+          </p>
+
+        </div>
+
+
+        <select id="photoCountSelect">
+
+          <option value="1">1 foto</option>
+          <option value="2">2 foto</option>
+          <option value="3">3 foto</option>
+          <option value="4" selected>4 foto</option>
+          <option value="5">5 foto</option>
+
+        </select>
+
+      </div>
+
+
+      <div class="setting-row">
+
+        <div>
+
           <strong>Hitung Mundur</strong>
 
           <p class="small-text">
@@ -477,6 +503,40 @@
 
         </label>
 
+      </div>
+
+    </div>
+
+
+    <!-- EDITOR TEMPLATE -->
+    <div class="customize-card template-editor">
+
+      <h3>Edit Template</h3>
+
+      <p class="small-text">
+        Sesuaikan tulisan dan warna hasil fotomu.
+      </p>
+
+      <label class="editor-field">
+        <span>Judul</span>
+        <input id="templateTitleInput" type="text" value="solace" maxlength="24">
+      </label>
+
+      <label class="editor-field">
+        <span>Tanggal</span>
+        <input id="templateDateInput" type="text" value="25/9/2026" maxlength="20">
+      </label>
+
+      <div class="editor-color-row">
+        <label class="editor-color-field">
+          <span>Latar</span>
+          <input id="templateBackgroundInput" type="color" value="#8d0000">
+        </label>
+
+        <label class="editor-color-field">
+          <span>Teks</span>
+          <input id="templateForegroundInput" type="color" value="#fff7ef">
+        </label>
       </div>
 
     </div>

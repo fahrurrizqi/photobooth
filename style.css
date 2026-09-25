@@ -797,6 +797,51 @@ body.dual-mode .partner-upload-row {
   font-size: 12px;
 }
 
+.template-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.editor-field,
+.editor-color-field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.editor-field input[type='text'] {
+  width: 62%;
+  border: 1px solid var(--line);
+  background: var(--cream);
+  color: var(--dark);
+  padding: 9px 10px;
+  border-radius: 2px;
+}
+
+.editor-color-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.editor-color-field {
+  justify-content: space-between;
+}
+
+.editor-color-field input[type='color'] {
+  width: 34px;
+  height: 28px;
+  padding: 2px;
+  border: 1px solid var(--line);
+  background: var(--cream);
+  cursor: pointer;
+}
+
 select {
   background: var(--bg);
   border: 1px solid var(--line);
