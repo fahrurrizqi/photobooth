@@ -159,7 +159,7 @@ button:disabled {
   background: #292929;
   border-radius: 4px;
   overflow: hidden;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 1 / 1;
   min-height: 250px;
 }
 
@@ -176,7 +176,7 @@ button:disabled {
   right: 18px;
   bottom: 18px;
   width: 28%;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 1 / 1;
   object-fit: cover;
   border: 2px solid white;
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
@@ -980,7 +980,7 @@ footer {
   }
 
   .camera-frame {
-    aspect-ratio: 3 / 4;
+    aspect-ratio: 1 / 1;
   }
 
   .app-container {

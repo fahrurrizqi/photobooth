@@ -228,15 +228,18 @@ async function runCountdown(seconds = Number(timerSelect.value)) {
 function drawPhoto(source, targetCanvas) {
     const width = source.videoWidth || source.naturalWidth;
     const height = source.videoHeight || source.naturalHeight;
-    targetCanvas.width = width;
-    targetCanvas.height = height;
+    const size = Math.min(width, height);
+    const sourceX = (width - size) / 2;
+    const sourceY = (height - size) / 2;
+    targetCanvas.width = size;
+    targetCanvas.height = size;
     const context = targetCanvas.getContext('2d');
     context.save();
     if (mirrorToggle.checked) {
-        context.translate(width, 0);
+        context.translate(size, 0);
         context.scale(-1, 1);
     }
-    context.drawImage(source, 0, 0, width, height);
+    context.drawImage(source, sourceX, sourceY, size, size, 0, 0, size, size);
     context.restore();
     return targetCanvas.toDataURL('image/jpeg', 0.92);
 }
@@ -348,12 +351,10 @@ async function renderDualResultIfReady() {
 
 function renderTemplate(images, resolve) {
     const width = ['film', 'pastel', 'floral', 'retro'].includes(selectedTemplate) ? 720 : 900;
-    const photoWidth = width - 96;
-    const photoHeight = Math.round(photoWidth * 0.75);
     const hasPair = images.length > 1;
     const slotGap = ['film', 'retro'].includes(selectedTemplate) ? 18 : 28;
     const bottomSpace = ['film', 'pastel', 'floral', 'retro'].includes(selectedTemplate) ? 150 : 190;
-    const height = Math.max(1120, 48 + (images.length * 330) + ((images.length - 1) * slotGap) + bottomSpace);
+    const height = width;
     canvas.width = width;
     canvas.height = height;
     const context = canvas.getContext('2d');
