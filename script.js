@@ -50,6 +50,7 @@ let peer = null;
 let dataConnection = null;
 let activeRoomCode = '';
 let captureInProgress = false;
+let captureSequenceInProgress = false;
 
 function getRequiredPhotoCount() {
     return selectedPhotoCount;
@@ -69,7 +70,7 @@ function updateCaptureProgress() {
         ? Math.min(Math.min(capturedPhotos.length, remotePhotos.length), total)
         : Math.min(getSessionPhotos().length, total);
     captureProgress.textContent = `Foto ${current}/${total}`;
-    captureBtn.disabled = !stream || current >= total || (selectedMode === 'dual' && !dataConnection);
+    captureBtn.disabled = !stream || captureSequenceInProgress || current >= total || (selectedMode === 'dual' && !dataConnection);
 }
 
 function makeRoomCode() {
@@ -402,6 +403,12 @@ function renderTemplate(images, resolve) {
         const drawHeight = item.height * ratio;
         context.drawImage(item, x + (photoSize - drawWidth) / 2, y + (photoSize - drawHeight) / 2, drawWidth, drawHeight);
         context.restore();
+        context.save();
+        context.strokeStyle = foreground;
+        context.globalAlpha = 0.9;
+        context.lineWidth = 6;
+        context.strokeRect(x + 3, y + 3, photoSize - 6, photoSize - 6);
+        context.restore();
         if (index < images.length - 1) {
             const gapColor = {
                 polaroid: '#d8eaf0', pastel: '#fff1f3', floral: '#fff8ed', retro: '#efe0c8', collage: '#fffaf2'
@@ -462,6 +469,23 @@ async function capturePhoto(requestRemote = true, requestedIndex = capturedPhoto
     updateCaptureProgress();
 }
 
+async function captureSequence() {
+    if (!stream || captureSequenceInProgress) return;
+    captureSequenceInProgress = true;
+    updateCaptureProgress();
+    try {
+        while (selectedMode === 'dual'
+            ? capturedPhotos.length < getRequiredPhotoCount()
+            : getSessionPhotos().length < getRequiredPhotoCount()) {
+            await capturePhoto();
+            if (selectedMode === 'dual' && !dataConnection?.open) break;
+        }
+    } finally {
+        captureSequenceInProgress = false;
+        updateCaptureProgress();
+    }
+}
+
 function resetPhoto() {
     capturedPhotos = [];
     remotePhotos = [];
@@ -472,7 +496,7 @@ function resetPhoto() {
 }
 
 startCameraBtn.addEventListener('click', startCamera);
-captureBtn.addEventListener('click', capturePhoto);
+captureBtn.addEventListener('click', captureSequence);
 retakeBtn.addEventListener('click', resetPhoto);
 newPhotoBtn.addEventListener('click', resetPhoto);
 photoCountSelect.addEventListener('change', () => {
